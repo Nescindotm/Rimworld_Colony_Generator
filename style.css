@@ -1,0 +1,615 @@
+/*
+ * style.css — RimWorld Colony Generator
+ *
+ * Scope: only styles that Tailwind utility classes cannot express cleanly —
+ *   • pseudo-elements (::before / ::after)
+ *   • complex multi-stop gradients
+ *   • keyframe animations
+ *   • BEM component classes that script.js injects dynamically
+ *
+ * Naming convention: BEM  →  .block__element--modifier
+ * All colours reference the same hex values defined in the Tailwind config
+ * so the two systems stay in sync.
+ */
+
+/* ═══════════════════════════════════════════════════════════
+   1. GLOBAL BACKGROUND
+   Subtle perpendicular grid on top of bg-rim-bg (#181815).
+═══════════════════════════════════════════════════════════ */
+body {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgba(255, 255, 255, 0.025) 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 39px,
+      rgba(255, 255, 255, 0.018) 40px
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. HEADER DIVIDER
+   Gold gradient rule under the page title.
+═══════════════════════════════════════════════════════════ */
+.header-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent   0%,
+    #3a3a2e      15%,
+    #c8a84b      40%,
+    #e0c068      50%,
+    #c8a84b      60%,
+    #3a3a2e      85%,
+    transparent 100%
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. MAIN CARD  (.rim-card)
+═══════════════════════════════════════════════════════════ */
+.rim-card {
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(200, 168, 75, 0.07),
+    0 10px 48px rgba(0, 0, 0, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+/* 2-px gold accent line across the very top edge */
+.rim-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent  5%,
+    #c8a84b     28%,
+    #e0c068     50%,
+    #c8a84b     72%,
+    transparent 95%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Inner corner hairlines (top-left & bottom-right) */
+.rim-card::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  box-shadow:
+    -1px -1px 0 0 rgba(200, 168, 75, 0.35) inset,
+     1px  1px 0 0 rgba(200, 168, 75, 0.35) inset;
+}
+
+/* Flash animation on each new generation */
+@keyframes cardFlash {
+  0%   { box-shadow: 0 0 0 1px rgba(200,168,75,0.07), 0 10px 48px rgba(0,0,0,0.72); }
+  35%  { box-shadow: 0 0 0 2px rgba(200,168,75,0.45), 0 10px 48px rgba(0,0,0,0.72), 0 0 32px rgba(200,168,75,0.14); }
+  100% { box-shadow: 0 0 0 1px rgba(200,168,75,0.07), 0 10px 48px rgba(0,0,0,0.72); }
+}
+
+.rim-card.is-flashing {
+  animation: cardFlash 0.55s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. SECTION HEADINGS
+═══════════════════════════════════════════════════════════ */
+.section-heading {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #c8a84b;   /* rim-gold */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Fading rule to the right of each heading */
+.section-heading::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #3a3a2e 0%, transparent 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. FIELD LABELS & VALUES
+═══════════════════════════════════════════════════════════ */
+.field-label {
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6a6050;   /* rim-textdim */
+  margin-bottom: 2px;
+}
+
+.field-value {
+  font-size: 13px;
+  color: #ccc4a8;   /* rim-text */
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. AVATAR
+═══════════════════════════════════════════════════════════ */
+.avatar-wrap {
+  width: 72px;
+  height: 72px;
+  background: #1a1a17;
+  border: 1px solid #3a3a2e;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.avatar-wrap svg {
+  display: block;
+  width: 72px;
+  height: 72px;
+}
+
+/* Green "alive" dot positioned over the avatar corner */
+.avatar-status-dot {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #58a858;
+  border: 1.5px solid #1a1a17;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7. STATUS BARS  (Health only)
+═══════════════════════════════════════════════════════════ */
+.stat-bar-card {
+  background: #1c1c1a;
+  border: 1px solid #2e2e26;
+  border-radius: 2px;
+  padding: 8px 10px;
+}
+
+.bar-track {
+  height: 5px;
+  background: #141412;
+  border: 1px solid #262620;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-val {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   8. SECTION DIVIDER
+═══════════════════════════════════════════════════════════ */
+.rim-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent  0%,
+    #3a3a2e     20%,
+    #3a3a2e     80%,
+    transparent 100%
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   9. HEALTH CONDITION BADGES
+   Created dynamically by createHealthConditionElement().
+   Severity: minor (yellow-dim) | major (orange) | critical (red)
+═══════════════════════════════════════════════════════════ */
+.health-condition {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 3px 9px 3px 7px;
+  background: #1a1a17;
+  border: 1px solid #2e2e26;
+  border-radius: 2px;
+  list-style: none;
+  cursor: default;
+  user-select: none;
+  animation: traitPop 0.25s ease both;
+}
+
+.health-condition::before {
+  content: "⬥";
+  font-size: 8px;
+}
+
+.health-condition--minor  { border-color: #5a5a20; color: #c8b84b; }
+.health-condition--minor::before  { color: #9a8830; }
+
+.health-condition--major  { border-color: #7a4a18; color: #d08840; }
+.health-condition--major::before  { color: #c87830; }
+
+.health-condition--critical { border-color: #7a2020; color: #e06060; }
+.health-condition--critical::before { color: #c84040; }
+
+/* ═══════════════════════════════════════════════════════════
+   10A. INCAPABLE TAGS
+   Created dynamically by createIncapableElement().
+═══════════════════════════════════════════════════════════ */
+.incapable-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 3px 9px 3px 7px;
+  background: #1e1414;
+  border: 1px solid #5a2a2a;
+  border-radius: 2px;
+  color: #c87878;
+  list-style: none;
+  cursor: default;
+  user-select: none;
+  animation: traitPop 0.25s ease both;
+}
+
+.incapable-tag::before {
+  content: "✕";
+  font-size: 9px;
+  color: #c84040;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   10B. TRAIT TAGS
+   Created dynamically by createTraitElement() in script.js.
+═══════════════════════════════════════════════════════════ */
+.trait-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  padding: 4px 10px 4px 8px;
+  background: #1a1a17;
+  border: 1px solid #2e2e26;
+  border-radius: 2px;
+  list-style: none;
+  cursor: default;
+  user-select: none;
+  /* entrance */
+  animation: traitPop 0.25s ease both;
+}
+
+@keyframes traitPop {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+/* Decorative diamond bullet */
+.trait-tag::before {
+  content: "◈";
+  font-size: 9px;
+}
+
+/* -- Modifier: good -- */
+.trait-tag--good              { border-color: #3a6a3a; color: #70c070; }
+.trait-tag--good::before      { color: #58a858; }
+
+/* -- Modifier: neutral -- */
+.trait-tag--neutral           { border-color: #2e4a6e; color: #60a0d0; }
+.trait-tag--neutral::before   { color: #4878a8; }
+
+/* -- Modifier: bad -- */
+.trait-tag--bad               { border-color: #6a2a2a; color: #e06060; }
+.trait-tag--bad::before       { color: #c84040; }
+
+/* ═══════════════════════════════════════════════════════════
+   10. SKILL ROWS
+   Created dynamically by createSkillElement() in script.js.
+═══════════════════════════════════════════════════════════ */
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  list-style: none;
+  /* stagger delay is set inline via style.animationDelay */
+  animation: skillSlideIn 0.3s ease both;
+}
+
+@keyframes skillSlideIn {
+  from { opacity: 0; transform: translateX(-5px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+.skill-icon {
+  font-size: 11px;
+  color: #5a5040;
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.skill-label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6a6050;
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.skill-bar-track {
+  flex: 1;
+  height: 5px;
+  background: #141412;
+  border: 1px solid #262620;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.skill-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Colour tiers ─ driven by scoreTier() in script.js */
+.skill-bar-fill--low      { background: #3a5a3a; }
+.skill-bar-fill--mid      { background: #4878a8; }
+.skill-bar-fill--high     { background: #c8a84b; }
+
+/* Disabled tier — bar stays empty for incapable skills */
+.skill-bar-fill--disabled { background: transparent; }
+
+.skill-score {
+  font-size: 11px;
+  width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.skill-score--low      { color: #5a7a5a; }
+.skill-score--mid      { color: #6090b8; }
+.skill-score--high     { color: #c8a84b; }
+.skill-score--disabled { color: #3a3028; }
+
+/* Disabled row — whole row is visually struck-through and dimmed */
+.skill-row--disabled {
+  opacity: 0.5;
+}
+
+.skill-row--disabled .skill-label {
+  color: #3e3830;
+  text-decoration: line-through;
+  text-decoration-color: #5a4030;
+  text-decoration-thickness: 1px;
+}
+
+.skill-row--disabled .skill-icon {
+  color: #3e3830;
+}
+
+.skill-row--disabled .skill-bar-track {
+  background: #111110;
+  border-color: #1e1e18;
+}
+
+/* Incapable ✕ marker in the passion slot */
+.skill-incapable-mark {
+  font-size: 9px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  color: #6a2828;
+}
+
+/* Passion star(s) beside the score */
+.skill-passion {
+  font-size: 9px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.skill-passion--minor { color: #c8a84b; }
+.skill-passion--major { color: #c87830; }
+
+/* ═══════════════════════════════════════════════════════════
+   11. SAVED ROSTER ROWS
+   Each saved colonist is an <li> with summary info + Trash btn.
+═══════════════════════════════════════════════════════════ */
+.roster-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1c1c1a;
+  border: 1px solid #2e2e26;
+  border-radius: 2px;
+  padding: 10px 14px;
+  list-style: none;
+  animation: skillSlideIn 0.3s ease both;
+}
+
+.roster-row__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.roster-row__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #e8dfc0;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.roster-row__meta {
+  font-size: 10.5px;
+  color: #6a6050;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.roster-row__health {
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.btn-trash {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #2a1a1a;
+  border: 1px solid #5a2a2a;
+  border-radius: 2px;
+  color: #c84040;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-trash:hover {
+  background: #3a1a1a;
+  border-color: #c84040;
+}
+
+.btn-trash:active { transform: scale(0.93); }
+
+.btn-trash:focus-visible {
+  outline: 2px solid #c84040;
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   12. SAVE BUTTON
+═══════════════════════════════════════════════════════════ */
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(180deg, #1e2c1e 0%, #141e14 100%);
+  border: 1px solid #3a6a3a;
+  color: #70c070;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 11px 22px;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition:
+    color        0.18s ease,
+    border-color 0.18s ease,
+    background   0.18s ease,
+    box-shadow   0.18s ease,
+    transform    0.1s ease;
+}
+
+.btn-save:hover {
+  color: #90e090;
+  border-color: #58a858;
+  background: linear-gradient(180deg, #243424 0%, #1a281a 100%);
+  box-shadow:
+    0 0 18px rgba(88, 168, 88, 0.28),
+    0 0  4px rgba(88, 168, 88, 0.12) inset;
+}
+
+.btn-save:active { transform: scale(0.97); }
+
+.btn-save:focus-visible {
+  outline: 2px solid #58a858;
+  outline-offset: 3px;
+}
+
+/* Disabled state while no colonist is loaded */
+.btn-save:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   13. GENERATE BUTTON
+═══════════════════════════════════════════════════════════ */
+.btn-generate {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: linear-gradient(180deg, #2c2c28 0%, #1c1c18 100%);
+  border: 1px solid #c8a84b;
+  color: #c8a84b;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 11px 32px;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition:
+    color        0.18s ease,
+    border-color 0.18s ease,
+    background   0.18s ease,
+    box-shadow   0.18s ease,
+    transform    0.10s ease;
+}
+
+/* Subtle inner highlight layer */
+.btn-generate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(200, 168, 75, 0.13) 0%,
+    transparent              100%
+  );
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.btn-generate:hover {
+  color: #f0d878;
+  border-color: #e0c068;
+  background: linear-gradient(180deg, #343428 0%, #242418 100%);
+  box-shadow:
+    0 0 20px rgba(200, 168, 75, 0.32),
+    0 0  5px rgba(200, 168, 75, 0.14) inset;
+}
+
+.btn-generate:hover::before { opacity: 1; }
+
+.btn-generate:active { transform: scale(0.97); }
+
+.btn-generate:focus-visible {
+  outline: 2px solid #c8a84b;
+  outline-offset: 3px;
+}

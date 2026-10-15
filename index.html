@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RimWorld Colony Generator</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind theme extension: RimWorld colour palette -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rim: {
+                bg:       "#181815",
+                panel:    "#222220",
+                panelalt: "#1c1c1a",
+                border:   "#3a3a2e",
+                borderlt: "#4e4e3a",
+                gold:     "#c8a84b",
+                goldlt:   "#e0c068",
+                golddim:  "#7a6830",
+                text:     "#ccc4a8",
+                textdim:  "#6a6050",
+                textlt:   "#e8dfc0",
+                green:    "#58a858",
+                greenlt:  "#70c070",
+                red:      "#c84040",
+                redlt:    "#e06060",
+                blue:     "#4878a8",
+                bluelt:   "#60a0d0",
+                orange:   "#c87830",
+              },
+            },
+            fontFamily: {
+              mono: ['"Courier New"', "Courier", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Custom styles: pseudo-elements, animations, BEM component classes -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body
+    class="min-h-screen bg-rim-bg font-mono text-rim-text
+           flex flex-col items-center justify-start px-4 py-10"
+  >
+
+    <!-- ═══════════════════════════════════════════
+         PAGE HEADER
+    ═══════════════════════════════════════════ -->
+    <header class="w-full max-w-2xl mb-8 text-center">
+      <p class="text-rim-golddim text-xs tracking-[0.3em] uppercase mb-1">
+        Ludeon Studios · Fan Tool
+      </p>
+      <h1 class="text-rim-goldlt text-2xl font-bold tracking-[0.2em] uppercase">
+        Colony Generator
+      </h1>
+      <p class="text-rim-textdim text-xs tracking-widest mt-1">RimWorld 1.5</p>
+      <!-- decorative gold gradient rule -->
+      <div class="header-divider mt-4"></div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════
+         COLONIST CARD
+         aria-live so screen-readers announce updates
+    ═══════════════════════════════════════════ -->
+    <main
+      id="colonist-card"
+      class="rim-card w-full max-w-2xl bg-rim-panel
+             border border-rim-border rounded-sm p-6 md:p-8"
+      aria-live="polite"
+      aria-label="Colonist profile"
+    >
+
+      <!-- ── PROFILE ─────────────────────────── -->
+      <section aria-labelledby="heading-profile">
+        <h2 id="heading-profile" class="section-heading">Colonist Profile</h2>
+
+        <div class="flex items-start gap-5 mt-3">
+
+          <!-- Procedural SVG avatar (72 × 72) -->
+          <div class="avatar-wrap flex-shrink-0 relative">
+            <svg
+              id="avatar-svg"
+              viewBox="0 0 72 72"
+              width="72"
+              height="72"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            ></svg>
+            <!-- green "alive" indicator dot -->
+            <span
+              class="avatar-status-dot"
+              aria-label="Colonist is alive"
+            ></span>
+          </div>
+
+          <!-- Name / Age / Gender / Background -->
+          <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+            <div>
+              <p class="field-label">Name</p>
+              <p
+                id="col-name"
+                class="field-value text-rim-textlt text-base
+                       font-bold tracking-wide"
+              >——</p>
+            </div>
+            <div>
+              <p class="field-label">Age &amp; Gender</p>
+              <p id="col-age" class="field-value">——</p>
+            </div>
+            <div>
+              <p class="field-label">Childhood</p>
+              <p id="col-childhood" class="field-value text-xs leading-snug">——</p>
+            </div>
+            <div>
+              <p class="field-label">Adulthood</p>
+              <p id="col-adulthood" class="field-value text-xs leading-snug">——</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Health bar + condition badges -->
+        <div class="mt-5">
+          <div class="stat-bar-card">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="field-label">Health</p>
+              <p id="val-health" class="stat-val text-rim-green">—</p>
+            </div>
+            <div class="bar-track">
+              <div
+                id="bar-health"
+                class="bar-fill bg-rim-green"
+                style="width:0%"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Active health conditions injected by JS -->
+          <ul
+            id="health-condition-list"
+            class="flex flex-wrap gap-2 mt-3"
+            role="list"
+            aria-label="Active health conditions"
+          ></ul>
+        </div>
+      </section>
+
+      <div class="rim-divider my-6"></div>
+
+      <!-- ── TRAITS ──────────────────────────── -->
+      <section aria-labelledby="heading-traits">
+        <h2 id="heading-traits" class="section-heading">Traits</h2>
+        <ul
+          id="trait-list"
+          class="flex flex-wrap gap-2 mt-3"
+          role="list"
+          aria-label="Colonist traits"
+        ></ul>
+      </section>
+
+      <div class="rim-divider my-6"></div>
+
+      <!-- ── SKILLS ──────────────────────────── -->
+      <section aria-labelledby="heading-skills">
+        <h2 id="heading-skills" class="section-heading">Skills</h2>
+        <ul
+          id="skill-list"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3 mt-3"
+          role="list"
+          aria-label="Colonist skills"
+        ></ul>
+      </section>
+
+      <div class="rim-divider my-6"></div>
+
+      <!-- ── INCAPABLE ───────────────────────── -->
+      <section aria-labelledby="heading-incapable">
+        <h2 id="heading-incapable" class="section-heading">Incapable Of</h2>
+        <ul
+          id="incapable-list"
+          class="flex flex-wrap gap-2 mt-3"
+          role="list"
+          aria-label="Tasks this colonist cannot perform"
+        ></ul>
+      </section>
+
+      <div class="rim-divider my-6"></div>
+
+      <!-- ── ACTION BUTTONS ─────────────────── -->
+      <div class="flex flex-col items-center gap-3">
+        <div class="flex items-center gap-3">
+          <button
+            id="btn-generate"
+            type="button"
+            class="btn-generate"
+            aria-label="Generate a new random colonist"
+          >
+            <span aria-hidden="true">▶</span>
+            Generate Colonist
+          </button>
+          <button
+            id="btn-save"
+            type="button"
+            class="btn-save"
+            aria-label="Save current colonist to roster"
+          >
+            ✦ Save
+          </button>
+        </div>
+        <p
+          id="gen-counter"
+          class="text-rim-textdim text-xs tracking-widest"
+          aria-live="polite"
+        >Generated: 0</p>
+      </div>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════════
+         SAVED ROSTER PANEL
+         Hidden until at least one colonist is saved.
+    ═══════════════════════════════════════════ -->
+    <section
+      id="saved-roster"
+      class="hidden w-full max-w-2xl mt-6"
+      aria-labelledby="heading-roster"
+    >
+      <div class="rim-card bg-rim-panel border border-rim-border rounded-sm p-6">
+        <h2 id="heading-roster" class="section-heading mb-4">Saved Roster</h2>
+        <ul
+          id="roster-list"
+          class="flex flex-col gap-3"
+          role="list"
+          aria-label="Saved colonists"
+        ></ul>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         PAGE FOOTER
+    ═══════════════════════════════════════════ -->
+    <footer class="mt-8 text-rim-textdim text-xs tracking-widest text-center">
+      Not affiliated with Ludeon Studios &nbsp;·&nbsp; Made for fun
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
